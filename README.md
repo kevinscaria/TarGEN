@@ -1,6 +1,2 @@
-<<<<<<< HEAD
-# SynDataGen
-Synthetic Data Creation using Large Language Models without Human Supervision: A Holistic Evaluation
+# μGEN : Multi-Step Human-Guided Synthetic Data Generation
 =======
-New Paper
->>>>>>> 7417483 (First Commit)
