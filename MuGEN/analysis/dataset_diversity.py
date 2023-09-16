@@ -7,10 +7,14 @@ from multiprocessing.pool import Pool
 from tqdm import tqdm
 from nltk.translate.bleu_score import SmoothingFunction, sentence_bleu
 import datasets
+import pandas as pd
 
 
 class DatasetDiversity:
+    function = "Dataset diversity"  # Static Variable
+
     def __init__(self, method) -> None:
+        # Instance Variables
         self.method = method
 
     @staticmethod
@@ -23,14 +27,18 @@ class DatasetDiversity:
 
     @staticmethod
     def get_all_sentences(file_path, required_column, n_sample):
+        all_sentences = []
         nlp = spacy.load('en_core_web_sm', disable=['parser', 'tagger', 'ner'])
 
         if os.path.isfile(file_path):
-            all_sentences = []
-            with open(file_path, "r") as f_in:
-                for line in f_in:
-                    obj = json.loads(line.strip())
-                    all_sentences.append(obj[required_column])
+            if file_path.endswith("json"):
+                with open(file_path, "r") as f_in:
+                    for line in f_in:
+                        obj = json.loads(line.strip())
+                        all_sentences.append(obj[required_column])
+            elif file_path.endswith("csv"):
+                df = pd.read_csv(file_path)
+                all_sentences = df[required_column].to_list()
         else:
             all_sentences = datasets.load_from_disk(file_path)[required_column]
 
@@ -41,6 +49,7 @@ class DatasetDiversity:
     def compute_diversity(self, file_path=None, required_column=None, n_sample=None, dump_path=None):
         random.seed(0)
         if self.method == "selfbleu":
+            print("Method: SelfBLEU")
             all_sentences = self.get_all_sentences(file_path, required_column, n_sample)
             smoothing_function = SmoothingFunction().method1
             pool = Pool(processes=os.cpu_count())
