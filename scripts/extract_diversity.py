@@ -2,7 +2,6 @@ import os
 import argparse
 import sys
 sys.path.append(os.getcwd())
-print(sys.path)
 from MuGEN.analysis.dataset_diversity import DatasetDiversity
 
 
