@@ -20,9 +20,10 @@ import os
 import random
 import torch
 import datasets
-from datasets import load_dataset, load_metric
+from datasets import load_dataset, load_metric, DatasetDict, Dataset
 from torch.utils.data.dataloader import DataLoader
 from tqdm.auto import tqdm
+import pandas as pd
 
 import transformers
 from accelerate import Accelerator
@@ -55,11 +56,6 @@ task_to_keys = {
     "sst2": ("sentence", None),
     "stsb": ("sentence1", "sentence2"),
     "wnli": ("sentence1", "sentence2"),
-    "boolq": ("Input", None),
-    "cb": ("Input", None),
-    "copa": ("Input", None),
-    "rte": ("Input", None),
-    "wic": ("Input", None),
 }
 
 
@@ -73,10 +69,10 @@ def parse_args():
         choices=list(task_to_keys.keys()),
     )
     parser.add_argument(
-        "--train_file", type=str, default=None, help="A csv or a json file containing the training artefacts."
+        "--train_file", type=str, default=None, help="A csv or a json file containing the training data."
     )
     parser.add_argument(
-        "--validation_file", type=str, default=None, help="A csv or a json file containing the validation artefacts."
+        "--validation_file", type=str, default=None, help="A csv or a json file containing the validation data."
     )
     parser.add_argument(
         "--max_length",
@@ -223,6 +219,23 @@ def main():
             data_files["validation"] = args.validation_file
         extension = (args.train_file if args.train_file is not None else args.valid_file).split(".")[-1]
         raw_datasets = load_dataset(extension, data_files=data_files)
+
+        if args.train_file.endswith('csv'):
+            train_df = pd.DataFrame(raw_datasets['train'])
+            train_df_cleaned = train_df.dropna()
+            train_hf_dataset = Dataset.from_pandas(train_df_cleaned)
+            if "__index_level_0__" in train_hf_dataset.column_names:
+                train_hf_dataset = train_hf_dataset.remove_columns(["__index_level_0__"])
+        if args.validation_file.endswith('csv'):
+            val_df = pd.DataFrame(raw_datasets['validation'])
+            val_df_cleaned = val_df.dropna()
+            val_hf_dataset = Dataset.from_pandas(val_df_cleaned)
+            if "__index_level_0__" in val_hf_dataset.column_names:
+                val_hf_dataset = val_hf_dataset.remove_columns(["__index_level_0__"])
+
+        raw_datasets = DatasetDict({'train':train_hf_dataset, 'validation':val_hf_dataset})
+        print(raw_datasets['train'])
+
     # See more about loading any type of standard or custom dataset at
     # https://huggingface.co/docs/datasets/loading_datasets.html.
 
@@ -268,7 +281,7 @@ def main():
     if args.task_name is not None:
         sentence1_key, sentence2_key = task_to_keys[args.task_name]
     else:
-        sentence1_key, sentence2_key = "sentence1", None
+        sentence1_key, sentence2_key = "input", None
 
     # Some models have set the order of the labels to use, so let's make sure we do use it.
     label_to_id = None
@@ -332,7 +345,7 @@ def main():
 
     # DataLoaders creation:
     if args.pad_to_max_length:
-        # If padding was already done ot max length, we use the default artefacts collator that will just convert everything
+        # If padding was already done ot max length, we use the default data collator that will just convert everything
         # to tensors.
         data_collator = default_data_collator
     else:
@@ -451,8 +464,8 @@ def main():
 
         model.eval()
         for step, batch in enumerate(eval_dataloader):
-            artefacts = model(**batch)
-            predictions = artefacts.logits.argmax(dim=-1)
+            outputs = model(**batch)
+            predictions = outputs.logits.argmax(dim=-1)
             metric.add_batch(
                 predictions=accelerator.gather(predictions),
                 references=accelerator.gather(batch["labels"]),

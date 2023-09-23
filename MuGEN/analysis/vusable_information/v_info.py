@@ -40,10 +40,12 @@ def v_entropy(data_fn, model, tokenizer, input_key='sentence1', batch_size=100):
     entropies = []
     correct = []
     predicted_labels = []
+    tokenizer_kwargs = {'padding':True,'truncation':True,'max_length':512}
 
     for j in tqdm(range(0, len(data), batch_size)):
         batch = data[j:j+batch_size]
-        predictions = classifier(batch[input_key].tolist())
+        
+        predictions = classifier(batch[input_key].tolist(), **tokenizer_kwargs)
 
         for i in range(len(batch)):
             prob = next(d for d in predictions[i] if d['label'] == batch.iloc[i]['label'])['score']
