@@ -1,21 +1,23 @@
 import json
 import os
 import random
-import spacy
+import umap
+import pandas as pd
 from functools import partial
 from multiprocessing.pool import Pool
 from tqdm import tqdm
+
+import spacy
 from nltk.translate.bleu_score import SmoothingFunction, sentence_bleu
 import datasets
-import pandas as pd
+from sentence_transformers import SentenceTransformer
 
 
 class DatasetDiversity:
     function = "Dataset diversity"  # Static Variable
 
-    def __init__(self, method) -> None:
-        # Instance Variables
-        self.method = method
+    def __init__(self) -> None:
+        pass
 
     @staticmethod
     def bleu_i(weights, all_sentences, smoothing_function, i):
@@ -28,7 +30,6 @@ class DatasetDiversity:
     @staticmethod
     def get_all_sentences(file_path, required_column, n_sample):
         all_sentences = []
-        nlp = spacy.load('en_core_web_sm', disable=['parser', 'tagger', 'ner'])
 
         if os.path.isfile(file_path):
             if file_path.endswith("json"):
@@ -42,15 +43,54 @@ class DatasetDiversity:
         else:
             all_sentences = datasets.load_from_disk(file_path)[required_column]
 
-        all_sentences = random.sample(all_sentences, n_sample)
-        all_sentences = [[tok.text for tok in nlp(s)] for s in all_sentences]
+        if n_sample is not None:
+            all_sentences = random.sample(all_sentences, n_sample)
         return all_sentences
+    
+    @staticmethod
+    def get_embeddings(sentence, embedding_model_ckpt='bert-base-uncased'):
+        model = SentenceTransformer(embedding_model_ckpt)
+        return model.encode(sentence)
 
-    def compute_diversity(self, file_path=None, required_column=None, n_sample=None, dump_path=None):
+    @staticmethod
+    def umap_reduce(dataset):
+        reducer = umap.UMAP()
+        umap_embedding = reducer.fit_transform(dataset)
+        return umap_embedding
+
+    @staticmethod
+    def compute_diversity(method, file_path, required_column, n_sample=None, model_ckpt = 'sentence-transformers/all-MiniLM-L6-v2'):
         random.seed(0)
-        if self.method == "selfbleu":
+        all_sentences = DatasetDiversity.get_all_sentences(file_path, required_column, n_sample)
+        nlp =  spacy.load('en_core_web_sm', disable=['parser', 'ner', 'lemmatizer'])
+
+        if method == 'vocabulary':
+            print("Method: Vocabulary")
+            vocabulary_count=0
+            for sentence in tqdm(all_sentences, desc='Counting Vocabulary: '):
+                if isinstance(sentence, str):
+                    spacy_sentence = nlp(sentence)
+                    non_stop_words = [token.text for token in spacy_sentence if not token.is_stop]
+                vocabulary_count+=len(set(non_stop_words))
+            return vocabulary_count
+        
+        if method == 'sdra':
+            print("Method: Semantic Density Reduction Analysis (SDRA)")
+
+            # Compute SentenceBERT embeddings
+            high_dimensional_embeddings = []
+            for sentence in tqdm(all_sentences, desc='SDRA'):
+                if isinstance(sentence, str):
+                    high_dimensional_embeddings.append(DatasetDiversity.get_embeddings(sentence, model_ckpt))
+            
+            # Compute UMAP 2D embeddings
+            low_dimensional_embeddings = (DatasetDiversity.umap_reduce(high_dimensional_embeddings))
+            return low_dimensional_embeddings
+
+
+        if method == "selfbleu":
             print("Method: SelfBLEU")
-            all_sentences = self.get_all_sentences(file_path, required_column, n_sample)
+            all_sentences = [[tok.text for tok in nlp(s)] for s in all_sentences]
             smoothing_function = SmoothingFunction().method1
             pool = Pool(processes=os.cpu_count())
             bleu_scores = []
@@ -79,10 +119,3 @@ class DatasetDiversity:
 
             for n_gram in range(5):
                 print(f"bleu-{n_gram + 1} = {sum(bleu_scores[n_gram]) / n_sample}")
-
-            if dump_path:
-                with open(dump_path, 'a') as fout:
-                    print(f"{os.path.basename(file_path)}", end='\t', file=fout)
-                    for n_gram in range(5):
-                        print(f"{sum(bleu_scores[n_gram]) / n_sample}", end='\t', file=fout)
-                    print(file=fout)

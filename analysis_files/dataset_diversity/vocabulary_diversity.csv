@@ -1,0 +1,9 @@
+dataset,original,synthetic
+boolq,251895,190677
+wic,65841,76453
+cb,6414,16615
+axg,3232,4473
+record,160334,236782
+rte,79174,49404
+wsc,8858,8874
+copa,5132,5235
