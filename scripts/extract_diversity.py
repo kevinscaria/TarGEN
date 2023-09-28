@@ -4,7 +4,7 @@ import pickle
 import sys
 sys.path.append(os.getcwd())
 import pandas as pd
-from MuGEN.analysis.dataset_diversity import DatasetDiversity
+from LLMDataGen.analysis.dataset_diversity import DatasetDiversity
 
 
 def parse_args():

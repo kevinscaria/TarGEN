@@ -4,7 +4,7 @@ import argparse
 from tqdm import tqdm
 
 sys.path.append(os.getcwd())
-from MuGEN.analysis.dataset_difficulty import DatasetDifficulty
+from LLMDataGen.analysis.dataset_difficulty import DatasetDifficulty
 
 
 def parse_args():

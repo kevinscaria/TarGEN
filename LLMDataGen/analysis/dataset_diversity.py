@@ -110,7 +110,7 @@ class DatasetDiversity:
                 bleu_scores.append(
                     list(tqdm(
                         pool.imap_unordered(
-                            partial(self.bleu_i, weights, all_sentences, smoothing_function),
+                            partial(DatasetDiversity.bleu_i, weights, all_sentences, smoothing_function),
                             list(range(len(all_sentences)))),
                         total=n_sample,
                         smoothing=0.0,

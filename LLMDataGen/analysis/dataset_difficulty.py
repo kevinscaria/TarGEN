@@ -1,6 +1,6 @@
 import os
-from MuGEN.analysis.vusable_information.augment import CustomDataNullTransformation, CustomDataStandardTransformation
-from MuGEN.analysis.vusable_information.v_info import v_info
+from LLMDataGen.analysis.vusable_information.augment import CustomDataNullTransformation, CustomDataStandardTransformation
+from LLMDataGen.analysis.vusable_information.v_info import v_info
 
 
 class DatasetDifficulty:
