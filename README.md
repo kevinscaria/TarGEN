@@ -7,7 +7,7 @@ The above name is a placeholder. Feel free to change it.
 Please let me know if there are any changes made.
 
 
-# μGEN : Multi-Step Human-Guided Synthetic Data Generation
+# LLMDataGen : A Simple Lightweight Method to Generate Synthetic Data using Large Language Models
 
 This is the official repository of the paper (URL)
 
