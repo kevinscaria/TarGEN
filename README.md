@@ -9,7 +9,8 @@
 This is the official repository of the paper: [TarGEN: Targeted Data Generation with Large Language Models](https://arxiv.org/abs/2310.17876)
 
 # How To?
-- Step 1: Import Packages & Add API_KEYS in the config.ini file in the root directory:
+
+**-Step 1: Import Packages & Add API_KEYS in the config.ini file in the root directory:**
 ``` python
 import configparser
 
