@@ -1,7 +1,6 @@
 # 💥 Additions
-- Adding generation.py script (WIP)
-- Adding analysis submodule to generate all analysis points related to bias, dataset difficulty, diversity, correctness etc. along lines of previous research (WIP)
-- Modularizing the repository as a package for quick replication (WIP)
+- Adding the self-correction step
+- Modularizing the repository as a package for quick replication - Design considerations WIP
 
 
 # TarGEN: Targeted Data Generation with Large Language Models
@@ -22,7 +21,7 @@ config.read('./config.ini')
 API_KEY = config.get('targen', 'OPEN_AI_KEY')
 ```
 
-**- Step 2: Instantiate TarGEN object*:*
+**-Step 2: Instantiate TarGEN object:**
 ```
 # Load TarGEN
 targen = Generate(api_key=API_KEY)
@@ -46,7 +45,7 @@ def custom_copa_parser(inference_output):
     """Write output parser logic"""
 ```
 
-**- Step 4: Load the prompts from the config and use method `create_synthetic_data` ti run the TarGEN pipeline:**
+**- Step 4: Load the prompts from the config and use method `create_synthetic_data()` to run the TarGEN pipeline:**
 ```
 step1_human_prompt = copa_config["step1_prompt"]
 step2_human_prompt = copa_config["step2_prompt"]
