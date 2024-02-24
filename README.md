@@ -21,10 +21,28 @@ config = configparser.ConfigParser()
 config.read('./config.ini')
 API_KEY = config.get('targen', 'OPEN_AI_KEY')
 ```
-- Step 2: Instantiate TarGEN object
+
+**- Step 2: Instantiate TarGEN object*:*
 ```
 # Load TarGEN
 targen = Generate(api_key=API_KEY)
+```
+
+**- Step 3: In the experiments directory add the prompts for all the steps:**
+```
+copa_config = {
+    "step1_prompt": """ADD CUSTOM STAGE 1 PROMPT""",
+
+    "step2_prompt": """ADD CUSTOM STAGE 2 PROMPT""",
+
+    "step3_prompt": """ADD CUSTOM STAGE 3 PROMPT""",
+
+    "step4_prompt": """ADD CUSTOM STAGE 4 PROMPT"""
+}
+
+
+def custom_copa_parser(inference_output):
+    """Write output parser logic"""
 ```
 
 ### If you find our work useful, please cite the paper: 
