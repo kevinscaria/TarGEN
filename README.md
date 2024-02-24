@@ -8,6 +8,22 @@
 
 This is the official repository of the paper: [TarGEN: Targeted Data Generation with Large Language Models](https://arxiv.org/abs/2310.17876)
 
+# How To?
+- Step 1: Import Packages & Add API_KEYS in the config.ini file in the root directory:
+  ```
+  import configparser
+
+from TarGEN import Generate
+from experiments.copa import copa_config, custom_copa_parser
+
+config = configparser.ConfigParser()
+config.read('./config.ini')
+API_KEY = config.get('targen', 'OPEN_AI_KEY')
+
+# Load TarGEN
+targen = Generate(api_key=API_KEY)
+```
+
 ### If you find our work useful, please cite the paper: 
 
 ```bibtex
