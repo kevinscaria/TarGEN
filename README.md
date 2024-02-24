@@ -19,7 +19,9 @@ from experiments.copa import copa_config, custom_copa_parser
 config = configparser.ConfigParser()
 config.read('./config.ini')
 API_KEY = config.get('targen', 'OPEN_AI_KEY')
-
+```
+- Step 2: Instantiate TarGEN object
+```
 # Load TarGEN
 targen = Generate(api_key=API_KEY)
 ```
