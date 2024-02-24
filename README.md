@@ -10,8 +10,8 @@ This is the official repository of the paper: [TarGEN: Targeted Data Generation 
 
 # How To?
 - Step 1: Import Packages & Add API_KEYS in the config.ini file in the root directory:
-  ```
-  import configparser
+``` python
+import configparser
 
 from TarGEN import Generate
 from experiments.copa import copa_config, custom_copa_parser
