@@ -29,6 +29,8 @@ targen = Generate(api_key=API_KEY)
 ```
 
 **- Step 3: In the experiments directory add the prompts for all the steps:**
+> [!IMPORTANT]  
+> Support for self-correction will be added shortly in this package.
 ```
 copa_config = {
     "step1_prompt": """ADD CUSTOM STAGE 1 PROMPT""",
@@ -40,9 +42,21 @@ copa_config = {
     "step4_prompt": """ADD CUSTOM STAGE 4 PROMPT"""
 }
 
-
 def custom_copa_parser(inference_output):
     """Write output parser logic"""
+```
+
+**- Step 4: Load the prompts from the config and use method `create_synthetic_data` ti run the TarGEN pipeline:**
+```
+step1_human_prompt = copa_config["step1_prompt"]
+step2_human_prompt = copa_config["step2_prompt"]
+step3_human_prompt = copa_config["step3_prompt"]
+step4_human_prompt = copa_config["step4_prompt"]
+
+targen.create_synthetic_data(step1_human_prompt, step2_human_prompt, step3_human_prompt,
+                             step4_human_prompt, n_samples=15, step3_parser=custom_copa_parser,
+                             output_path="./outputs/copa_sample.json"
+                             )
 ```
 
 ### If you find our work useful, please cite the paper: 
