@@ -1,7 +1,6 @@
-# 💥 Additions
-- Adding the self-correction step
-- Modularizing the repository as a package for quick replication - Design considerations WIP
-
+# 💥 What's New?
+- Added the self-correction step logic for COPA.
+- Modularized the repository as a package for quick replication. Currently added for SyntheticCopa. For other datasets, shortly added.
 
 # TarGEN: Targeted Data Generation with Large Language Models
 
@@ -28,33 +27,24 @@ targen = Generate(api_key=API_KEY)
 ```
 
 **- Step 3: In the experiments directory add the prompts for all the steps:**
-> [!IMPORTANT]  
-> Support for self-correction will be added shortly in this package.
-```
-copa_config = {
-    "step1_prompt": """ADD CUSTOM STAGE 1 PROMPT""",
-
-    "step2_prompt": """ADD CUSTOM STAGE 2 PROMPT""",
-
-    "step3_prompt": """ADD CUSTOM STAGE 3 PROMPT""",
-
-    "step4_prompt": """ADD CUSTOM STAGE 4 PROMPT"""
-}
-
-def custom_copa_parser(inference_output):
-    """Write output parser logic"""
-```
+> [!IMPORTANT]
+> Check out [sample SyntheticCopa class](https://github.com/kevinscaria/TarGEN/blob/main/experiments/copa.py) which extends BaseExperiments class as a systematic way to enforce required methods.
 
 **- Step 4: Load the prompts from the config and use method `create_synthetic_data()` to run the TarGEN pipeline:**
 ```
-step1_human_prompt = copa_config["step1_prompt"]
-step2_human_prompt = copa_config["step2_prompt"]
-step3_human_prompt = copa_config["step3_prompt"]
-step4_human_prompt = copa_config["step4_prompt"]
+# Load TarGEN
+targen = Generate(api_key=API_KEY)
 
-targen.create_synthetic_data(step1_human_prompt, step2_human_prompt, step3_human_prompt,
-                             step4_human_prompt, n_samples=15, step3_parser=custom_copa_parser,
-                             output_path="./outputs/copa_sample.json"
+target_data_orchestrator = SyntheticCopa()
+
+targen.create_synthetic_data(generator_function=target_data_orchestrator.generator_function,
+                             output_path="outputs/copa_sample.json",
+                             n_samples=6,
+                             step1_human_prompt=target_data_orchestrator.get_config()["step1_prompt"],
+                             step2_human_prompt=target_data_orchestrator.get_config()["step2_prompt"],
+                             step3_human_prompt=target_data_orchestrator.get_config()["step3_prompt"],
+                             step4_human_prompt=target_data_orchestrator.get_config()["step4_prompt"],
+                             overwrite=True
                              )
 ```
 
