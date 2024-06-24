@@ -1,28 +1,28 @@
-import configparser
+import os
+from dotenv import load_dotenv
+from langchain_openai import ChatOpenAI
+
 from TarGEN import Generate
 from experiments.copa import SyntheticCopa
-from TarGEN.base_experiments import BaseExperiments
+from TarGEN.base_experiment import BaseExperiment
 
-config = configparser.ConfigParser()
-config.read('./config.ini')
-API_KEY = config.get('targen', 'OPEN_AI_KEY')
-TARGET_DATA_STYLE = "COPA"
+load_dotenv("./.env")
+API_KEY = os.getenv("OPEN_AI_KEY")
+TARGET_DATA_STYLE = "COPAA"
 
-# Load TarGEN
-targen = Generate(api_key=API_KEY)
+# Load Model
+openai_llm = ChatOpenAI(openai_api_key=API_KEY)
 
 # Load orchestrator
 if TARGET_DATA_STYLE == "COPA":
-    target_data_orchestrator = SyntheticCopa()
+    experiment_object = SyntheticCopa(model=openai_llm)
 else:
-    target_data_orchestrator = BaseExperiments()
+    experiment_object = BaseExperiment(llm=openai_llm)
 
-targen.create_synthetic_data(generator_function=target_data_orchestrator.generator_function,
-                             output_path="outputs/copa_sample.json",
-                             n_samples=6,
-                             step1_human_prompt=target_data_orchestrator.get_config()["step1_prompt"],
-                             step2_human_prompt=target_data_orchestrator.get_config()["step2_prompt"],
-                             step3_human_prompt=target_data_orchestrator.get_config()["step3_prompt"],
-                             step4_human_prompt=target_data_orchestrator.get_config()["step4_prompt"],
-                             overwrite=True
+# Load TarGEN
+targen = Generate(experiment_object=experiment_object)
+targen.create_synthetic_data(output_path="outputs/copa_sample.json",
+                             n_samples=8,
+                             overwrite=True,
+                             num_instance_seeds=1
                              )

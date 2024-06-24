@@ -1,26 +1,29 @@
 import os
 import json
 import time
+import uuid
+
 from tqdm.auto import tqdm
 from typing import Optional
-from langchain_openai import ChatOpenAI
+
+from TarGEN.base_experiment import BaseExperiment, NotAValidExperiment
 
 
 class Generate:
-    def __init__(self,
-                 api_key: str,
-                 ):
-        self.model = ChatOpenAI(openai_api_key=api_key)
+    def __init__(self, experiment_object):
+        if not isinstance(experiment_object, BaseExperiment):
+            raise NotAValidExperiment(
+                f"The experiment object {experiment_object.__name__} does not meet required "
+                f"definition of BaseExperiments"
+            )
+        else:
+            self.experiment_object = experiment_object
 
     def create_synthetic_data(self,
-                              generator_function,
                               output_path: str = None,
                               n_samples: Optional[int] = 100,
-                              step1_human_prompt: Optional[str] = None,
-                              step2_human_prompt: Optional[str] = None,
-                              step3_human_prompt: Optional[str] = None,
-                              step4_human_prompt: Optional[str] = None,
-                              overwrite: Optional[bool] = False
+                              overwrite: Optional[bool] = False,
+                              num_instance_seeds: Optional[int] = 1,
                               ):
 
         # Dump path
@@ -42,8 +45,17 @@ class Generate:
 
         for idx in pbar:
             pbar.set_description(desc=f"{idx + 1}")
-            instance_sample = generator_function(self.model, step1_human_prompt, step2_human_prompt,
-                                                 step3_human_prompt, step4_human_prompt)
+            instance_sample = self.experiment_object.generator_function(
+                self.experiment_object.get_config()["step1_prompt_items"],
+                self.experiment_object.get_config()["step2_prompt_items"],
+                self.experiment_object.get_config()["step3_prompt_items"],
+                self.experiment_object.get_config()["step4_prompt_items"],
+                num_instance_seeds
+            )
+
+            # Adding identifiers
+            instance_sample["s_no"] = start_idx+idx
+            instance_sample["id"] = str(uuid.uuid4())
 
             # Rate limiter
             counter += 1
