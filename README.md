@@ -14,7 +14,7 @@ This is the official repository of the paper: [TarGEN: Targeted Data Generation 
 
 The ability to control model objects has also been introduced in the 
 `main.py` script abstracting away from internal classes to provide flexibility.
-Any langchain supported API can be used for experimentation.
+Any langchain-supported API can be used for experimentation.
 ``` python
 import os
 from dotenv import load_dotenv
@@ -36,12 +36,14 @@ openai_llm = ChatOpenAI(openai_api_key=API_KEY)
 > Check out [sample SyntheticCopa class](https://github.com/kevinscaria/TarGEN/blob/main/experiments/copa.py) which extends BaseExperiment
 > class as a systematic way to enforce required methods.
 
-This file requires defining the pydantic object class of the instance sample, 
-where each field and description is explicitly mentioned. There are few global
-variables that will available during runtime for the generator to access such as 
-`DOMAIN, N, SENTENCE` etc. Changes to global variables are currently frozen and requires
-changes in the BAseExperiment class. In the next update we will provide accessibility
-as a local runtime variable that can be configured as required by the prompt engineer.
+- For added flexibility, this file can also override the [`generator_function`](https://github.com/kevinscaria/TarGEN/blob/main/TarGEN/base_experiment.py#L42-L111) in case of
+changes in logic in the generator function.
+- This file requires defining the pydantic object class of the instance sample, 
+where each field and description is explicitly mentioned. There are a few global
+variables that will be available during runtime for the generator to access such as 
+`DOMAIN, N, SENTENCE` etc. Changes to global variables are frozen and require
+changes in the BaseExperiment class. In the next update, we will provide accessibility
+as a local runtime variable that can be configured as the prompt engineer requires.
 
 
 **- Step 3: Load experiment object in `main.py`
