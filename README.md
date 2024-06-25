@@ -33,7 +33,7 @@ openai_llm = ChatOpenAI(openai_api_key=API_KEY)
 
 **- Step 2: In the experiments directory add the configs for all the steps:**
 > [!IMPORTANT]
-> Check out [sample SyntheticCopa class](https://github.com/kevinscaria/TarGEN/blob/main/experiments/copa.py) which extends BaseExperiments 
+> Check out [sample SyntheticCopa class](https://github.com/kevinscaria/TarGEN/blob/main/experiments/copa.py) which extends BaseExperiment
 > class as a systematic way to enforce required methods.
 
 This file requires defining the pydantic object class of the instance sample, 
