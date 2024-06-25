@@ -73,8 +73,10 @@ class BaseExperiment(object):
         # Step 3
         for INSTANCE_SEED in step2_output:
             instance_sample["SENTENCE"] = INSTANCE_SEED
-            # TODO: Need to generalize this as a config item as well --> @Kevin
-            relation_idx = np.random.choice(len(step3_prompt_items["template"]), size=1, replace=True)[0]
+            if isinstance(step3_prompt_items["template"], list):
+                relation_idx = np.random.choice(len(step3_prompt_items["template"]), size=1, replace=True)[0]
+            else:
+                relation_idx = step3_prompt_items["template"]
 
             step3_prompt = ChatPromptTemplate.from_messages(
                 [
