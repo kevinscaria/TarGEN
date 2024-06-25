@@ -8,7 +8,7 @@ from TarGEN.base_experiment import BaseExperiment
 
 load_dotenv("./.env")
 API_KEY = os.getenv("OPEN_AI_KEY")
-TARGET_DATA_STYLE = "COPAA"
+TARGET_DATA_STYLE = "COPA"
 
 # Load Model
 openai_llm = ChatOpenAI(openai_api_key=API_KEY)
